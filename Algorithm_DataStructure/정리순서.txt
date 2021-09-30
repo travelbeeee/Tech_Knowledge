@@ -1,0 +1,29 @@
+1) BruteForce O
+2) Backtracking O
+3) Selection_Sort O
+4) Bubble_Sort O
+5) Insertion_Sort O
+6) Quick_Sort O
+7) Merge_Sort O
+8) Union_Find O
+9) Divide_Conquer -->
+10) DP -->
+11) Greedy  -->
+12) Stack O
+13) Queue O
+14) Deque O
+15) Bitmask
+16) KMP
+17) Trie
+--> 이 뒤로는 트리랑 그래프를 해보자...!
+
+다익스트라
+플로이드
+위상정렬
+Cycle체크 ( 방향 --> DFS, 양방향 --> Union Find )
+MST
+CCW 도 해야된다!
+2개의 직사각형이 만나는지 안만나는지도!
+
+priority_queue
+Map / HashMap
