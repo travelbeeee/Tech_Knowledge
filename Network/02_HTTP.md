@@ -74,3 +74,5 @@ HTTP 프로토콜은 비연결프로토콜이라 매번 TCP/IP 연결을 새로 
 이 문제를 해결하기 위해 HTTP/1.1 에서는 어느 한 쪽이 명시적으로 연결을 종료하지 않는 이상 TCP 연결을 계속 유지하는 지속연결 기능을 제공해줍니다.
 
 <img src="https://user-images.githubusercontent.com/59816811/106849617-593ba080-66f6-11eb-9f87-bdcf1efe4f7b.png" alt="network02_2" width="350"/>
+
+> 초창기의 웹은 전달해야 하는 콘텐츠 수가 많지 않았기 때문에, 지속 연결 기능이 없어도 문제가 없었다. 하지만, 점점 콘텐츠 수가 많아지면서 현재는 하나의 웹 페이지를 불러오는데도 굉장히 많은 요청이 이루어진다. 따라서, HTTP 에서 Connection : keep-alive 헤더를 통해 지속 연결을 지원해주기 시작했고 현재 많이 쓰이는 HTTP 1.1 에서는 굳이 Connection 헤더를 명시하지 않더라도 Connection : keep-alive 가 Default 이다.
