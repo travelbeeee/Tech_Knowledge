@@ -50,10 +50,10 @@ N 개의 원소가 있다고 가정하고 버블 정렬의 복잡도를 분석�
 
 <img src="https://user-images.githubusercontent.com/59816811/104244993-d6cd1180-54a6-11eb-987b-0a1b31f25b4d.png" alt="2" width="500"/>
 
-#### Step 3)
+##### Step 3)
 
 <img src="https://user-images.githubusercontent.com/59816811/104244995-d765a800-54a6-11eb-809b-04aa57f9b11f.png" alt="3" width="500" />
 
-#### Step 4)
+##### Step 4)
 
 <img src="https://user-images.githubusercontent.com/59816811/104244997-d7fe3e80-54a6-11eb-97de-5e184a95a2d4.png" alt="4" width="500" />
