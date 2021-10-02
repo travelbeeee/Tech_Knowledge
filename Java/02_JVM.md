@@ -1,6 +1,6 @@
 ### 2) JVM ( Java Virtual Machine )
 
-<img src="https://user-images.githubusercontent.com/59816811/122666182-c738be00-d1e6-11eb-9e85-7de121cc3f18.png" alt="image" style="width:500px" />
+00
 
 1) 실행될 클래스 파일을 메모리에 로드 후 초기화 작업 수행
 
