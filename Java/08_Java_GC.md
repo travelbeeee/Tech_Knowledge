@@ -72,7 +72,7 @@
 
 ![helloworld-1329-3](https://user-images.githubusercontent.com/59816811/135704781-1d9aa15c-1ebf-43aa-b06b-52a876cc7d68.png)
 
-> HotSpot VM에서는 보다 빠른 메모리 할당을 위해서 두 가지 기술을 사용한다. 하나는 bump-the-pointer라는 기술이며, 다른 하나는 TLABs(Thread-Local Allocation Buffers)라는 기술이다.
+> HotSpot JVM에서는 보다 빠른 메모리 할당을 위해서 두 가지 기술을 사용한다. 하나는 bump-the-pointer라는 기술이며, 다른 하나는 TLABs(Thread-Local Allocation Buffers)라는 기술이다.
 >
 > bump-the-pointer는 Eden 영역에 할당된 마지막 객체를 추적한다. 마지막 객체는 Eden 영역의 맨 위(top)에 있다. 그리고 그 다음에 생성되는 객체가 있으면, 해당 객체의 크기가 Eden 영역에 넣기 적당한지만 확인한다. 만약 해당 객체의 크기가 적당하다고 판정되면 Eden 영역에 넣게 되고, 새로 생성된 객체가 맨 위에 있게 된다. 따라서, 새로운 객체를 생성할 때 마지막에 추가된 객체만 점검하면 되므로 매우 빠르게 메모리 할당이 이루어진다.
 >
@@ -84,7 +84,7 @@
 
 ### 4)  Old (Major GC)
 
-`Young` 영역에서 오래 살아남은 객체는 `Old` 영역으로 Promotion 된다. 따라서, `Major GC`는 객체들이 계속 Promotion되어 `Old` 영역의 메모리가 부족해지면 발생하게 된다. `Youn`g 영역은 일반적으로 `Old` 영역보다 크키가 작기 때문에 GC가 보통 0.5초에서 1초 사이에 끝난다. 그렇기 때문에 `Minor GC`는 애플리케이션에 크게 영향을 주지 않는다. 하지만 `Old` 영역은 `Young` 영역보다 크며 `Young` 영역을 참조할 수도 있다. 그렇기 때문에 `Major GC`는 일반적으로 `Minor GC`보다 시간이 오래걸리며, 10배 이상의 시간을 사용한다.
+`Young` 영역에서 오래 살아남은 객체는 `Old` 영역으로 Promotion 된다. 따라서, `Major GC`는 객체들이 계속 Promotion되어 `Old` 영역의 메모리가 부족해지면 발생하게 된다. `Young` 영역은 일반적으로 `Old` 영역보다 크키가 작기 때문에 GC가 보통 0.5초에서 1초 사이에 끝난다. 그렇기 때문에 `Minor GC`는 애플리케이션에 크게 영향을 주지 않는다. 하지만 `Old` 영역은 `Young` 영역보다 크며 `Young` 영역을 참조할 수도 있다. 그렇기 때문에 `Major GC`는 일반적으로 `Minor GC`보다 시간이 오래걸리며, 10배 이상의 시간을 사용한다.
 
 <br>
 
@@ -111,4 +111,72 @@
 
 <br>
 
-참고 : https://d2.naver.com/helloworld/1329
+### 5) Old ( Major GC) 방식
+
+ Old 영역은 기본적으로 데이터가 가득 차면 GC를 실행합니다. GC 방식에 따라서 처리 절차가 달라지고, GC 방식은 JDK 7을 기준으로 5가지 방식이 있습니다.
+
+- Serial GC
+- Parallel GC
+- Parallel Old GC(Parallel Compacting GC)
+- Concurrent Mark & Sweep GC(이하 CMS)
+- G1(Garbage First) GC
+
+> JDK 11에서는 Default 로 G1 GC를 사용하고 있다.JDK 11에서는 Default 로 G1 GC를 사용하고 있다.
+
+##### Serial GC
+
+ Serial GC는 데스크톱의 CPU 코어가 하나만 있을 때 사용하기 위해서 만든 방식이라 Serial GC를 사용하면 애플리케이션의 성능이 많이 떨어집니다. Young 영역에서의 GC는 위에서 정리한 내용대로 실행하고, Old 영역의 GC는 mark-sweep-compact이라는 알고리즘을 사용합니다. 
+
+ 이 알고리즘의 첫 단계는 Old 영역에 살아 있는 객체를 식별(Mark)하는 것이다. 그 다음에는 힙(heap)의 앞 부분부터 확인하여 살아 있는 것만 남긴다(Sweep). 마지막 단계에서는 각 객체들이 연속되게 쌓이도록 힙의 가장 앞 부분부터 채워서 객체가 존재하는 부분과 객체가 없는 부분으로 나눈다(Compaction).
+
+##### Parallel GC
+
+ Parallel GC는 Serail GC가 하나의 스레드로 처리하는 것에 비해 멀티 스레드로 GC 작업을 처리합니다.
+
+##### Parallel Old GC
+
+ Parallel GC와 비교하여 Old 영역의 GC 알고리즘만 다르다. 이 방식은 Mark-Summary-Compaction 단계를 거친다. Summary 단계는 앞서 GC를 수행한 영역에 대해서 별도로 살아 있는 객체를 식별한다는 점에서 Mark-Sweep-Compaction 알고리즘의 Sweep 단계와 다르며, 약간 더 복잡한 단계를 거친다
+
+#####  CMS GC
+
+ 앞의 GC 방식보다 더 개선되었으면서, 복잡한 방식이다. Stop-The-World 시간을 최소화 하는데 초첨을 맞췄다. 컨셉은 GC 대상 객체를 최대한 자세히 파악한 후, Stop-The-World 가 발생하는 Sweep 시간을 최소화 하는데 초점을 맞췄다. Low Latency GC라고도 부르고, `Compaction` 이 기본적으로 제공되지 않고 필요할 때만 일어난다.
+
+1. Initial Mark
+   GC 과정에서 살아남을 객체를 Root Set에서 가장 가까운 객체만 탐색하며, 참조가 끊겼는지를 확인한다. 이 과정에서 Stop-The-World 가 일어나지만, 탐색 깊이가 짧아 멈추는 시간 역시 짧다. ( 클래스 로더에서 가장 가까운 객체중 살아 있는 객체만 찾는다 )
+2. ConcurrentMark
+   Initial Mark 단계에서 GC 대상으로 판별한 객체들을 따라가며 GC 대상인지 추가로 확인한다. 이 과정중에는 Stop-The-World 가 일어나지 않는다. ( 위에서 살아있다고 확인한 객체에서 참조되고 있는 객체를 확인한다 )
+3. Remark
+   Concurrent Mark 단계의 결과를 검증한다. Concurrent Mark 단계에서 GC 대상으로 추가 확인되었는지, 참조가 제거되었는지 등 확인을 한다. 이때 Stop-The-World가 일어나며, 이 시간을 최대한 줄이기 위해 멀티스레드로 검증작업을 수행한다. ( 위 단계에서 새로 추가되거나 참조가 끊긴 객체를 확인한다 )
+4. Concurrent Sweep
+   GC 대상으로 판별된 객체들을 멀티스레드로 메모리에서 제거한다. 이때 Stop-The-World가 발생하지 않는다.
+
+단점으로는 하는 일이 많다보니 CPU 부하가 커진다는 것이고, Compaction이 기본적으로 제공되지 않고 필요할 때만 일어나는데, 이때의 Stop-The-World 시간이 다른 GC보다 더 길게 걸릴 수도 있다.
+
+##### G1 GC
+
+ 하드웨어가 발전되어 JVM을 가동하는 메모리의 크기도 점점 커져가는데, 이전까지의 GC들은 큰 용량의 메모리에 적합하지 않다(Root set부터 순차적으로 탐색하기에 용량이 클 수록 탐색 시간이 길어짐).
+ G1 GC는 이런 점을 개선하여, 큰 Heap 메모리에서 짧은 GC 시간을 보장하는데 그 목적을 둔다. G1 GC는 Eden, Survivor, Old 영역이 존재하지만, 고정된 크기로 고정된 위치에 존재하지 않는다. 전체 Heap 영역을 Region이라는 특정한 크기로 나눠서, 각 Region의 상태에 따라 역할(Eden, Survivor, Old)이 동적으로 부여된다. 2048개의 Region으로 나뉠수 있으며, 옵션을 통해 1MB~32MB 사이로 지정할 수 있다. Region은 기본적으로 ( 전체 Heap 메모리 ) / 2048 로 default 값이 지정되어 있습니다.
+
+![다운로드 (2)](https://user-images.githubusercontent.com/59816811/135750099-e391d405-f3a2-495e-84fd-d2977b27b528.png)
+
+앞에서 봤던 Eden, Survivor, Old 외에 Humonogous와 Available/Unused Region이 추가로 보인다. Humongous는 설정된 Region 크기의 50%를 초과하는 큰 객체를 저장하기 위한 공간으로, 이 Region에서는 GC 동작이 최적으로 동작하지 않는다. Available/Unused 는 이름에서 짐작할 수 있듯, 아직 사용되지 않은 공간이다.
+
+`G1GC` 에서도 마찬가지로 **Minor GC** 가 존재하며, 요 과정에는 살아남은 객체들을 Survivor Region으로 옮기고, Eden에 대한 영역을 사용가능한(Availabe)Region으로 돌리는 형태로 과정이 일어나게 됩니다. `G1GC` 에는 은 `IHOP(InitiatingHeapOccupancyPercent)` 에서 정한 수치를 초과하면 **Full GC** 와 유사한 **Concurrent Cycle** 이라는 과정이 총 6개의 단계를 거쳐 이루어지게 된다.
+
+1. **Initial Mark** : Old Region에 존재하는 객체들이 참조하는 Survivor Region을 찾는다(STW)
+2. **Root Region Scan** : 위에서 찾은 Survivor 객체들에 대한 스캔 작업을 실시한다
+3. **Concurrent Mark** : 전체 Heap의 scan 작업을 실시하고, GC 대상 객체가 발견되지 않은 Region은 이후 단계를 제외한다
+4. **Remark** : 애플리케이션을 멈추고(STW) 최종적으로 GC 대상에서 제외할 객체를 식별한다
+5. **Cleanup** : 애플리케이션을 멈추고(STW) 살아있는 객체가 가장 적은 Region에 대한 미사용 객체를 제거한다
+6. **Copy** : GC 대상의 Region이었지만, Cleanup 과정에서 완전히 비워지지 않은 Region의 살아남은 객체들을 새로운 Region(Available/Unused) Region에복사하여 Compaction을 수행한다
+
+<br>
+
+참고
+
+https://d2.naver.com/helloworld/1329
+
+https://velog.io/@hygoogi/%EC%9E%90%EB%B0%94-GC%EC%97%90-%EB%8C%80%ED%95%B4%EC%84%9C
+
+https://huisam.tistory.com/entry/jvmgc
+
