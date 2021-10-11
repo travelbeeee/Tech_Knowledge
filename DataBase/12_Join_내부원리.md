@@ -49,3 +49,16 @@
 - 적절한 Index가 없어도 `Hash Function`을 이용하기 때문에 성능상에 문제가 없다.
 - `Hash Function`을 이용하기 때문에 중복되는 값이 많은 Column을 Join Key로 삼으면 성능이 좋지 않다.
 - `Hash Table`을 만들기 위해 메모리를 추가로 사용해야한다.
+
+<br>
+
+### Q.  무조건 Hash Join 기법이 좋은가 
+
+ 상황에 따라 NL Join, Sorted Merge Join, Hash Join 을 맞게 사용하는 것이 좋다. 
+
+```sql
+select * from Member inner join Team on Member.team_id = Team.id
+	where Member.name = '홍길동'
+```
+
+ 위의 쿼리는 결국 이름이 '홍길동'인 사람에 대해서만 Join이 일어나게되므로 `Sorted Merge Join` 을 이용해 Sorting을 하거나, `Hash Join`을 이용해 추가적인 메모리를 사용하지 않아도 `NL Join`으로도 금방 조회가 가능할 것이다. 이처럼 속도, 메모리를 모두 생각해서 상황에 맞는 조인 전략을 사용해야한다.
