@@ -33,6 +33,20 @@
 Java SE 에서 구체적인 목적에 따라 API를 추가하거나 자바 가상 머신 규격 및 API의 일부를 택해서 다른 플랫폼들이 정의된다.
 
 > 우리가 흔히 자바 언어라고 하는 대부분의 패키지는 Java SE에 포함된 패키지를 의미!
->
 
 <br>
+
+- JDK ( Java Development Kit ) 
+
+  - 자바 프로그램 개발에 필요한 구성 요소
+  - JRE + 개발을 위해 필요한 도구 (javac 등) 을 추가로 포함
+
+- JRE ( Java Runtime Environment )
+
+  - 자바 프로그램 실행에 필요한 구성 요소
+
+- API ( Application Programming Interface )
+
+  - 자바 응용 프로그램 개발에 사용하는 라이브러리
+
+  
