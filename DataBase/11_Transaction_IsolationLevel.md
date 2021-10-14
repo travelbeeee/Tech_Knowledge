@@ -11,6 +11,12 @@
 - Repeatable Read ( MySql 기본 전략 )
 - Serializable
 
+Isolation Level에 따른 Transaction 문제 현상 3가지는 크게 다음과 같습니다.
+
+- 아직 `COMMIT` 되지 않은 신뢰할 수 없는 데이터를 읽어옴(*dirty read*)
+- 한 트랜잭션에서 동일한 `SELECT` 쿼리의 결과가 다름(*non-repeatable read*)
+- 이전의 `SELECT` 쿼리의 결과에 없던 row가 생김(*phantom read*)
+
 <br>
 
 ### 2)  Read Uncommitted
