@@ -60,3 +60,11 @@ public boolean empty(); // 스택이 비어 있으면 true 아니면 false 반�
 public int search(Element item);
 ```
 
+<br>
+
+### Q. Stack 2개로 Queue 구현하기.
+
+ Stack 2개를 이용하면 Queue를 구현할 수 있습니다. Stack A는 Queue의 Insert 연산을 담당하고, Stack B는 Queue의 Pop 연산을 담당하면 됩니다. 
+
+- Insert() 는 Stack A에 데이터를 추가합니다.
+- Pop() 은 Stack B에 데이터가 있다면 Stack B에서 Pop을 하고, Stack B가 비어있다면 Stack A의 모든 데이터를 Pop해서 B로 Insert 합니다.
