@@ -38,22 +38,22 @@
 
 ### 3) SOLID 5원칙
 
-- SRP 단일 책임 원칙
+- SRP(Single Responsibility Principle) 단일 책임 원칙
 
   클래스는 단 하나의 책임을 가져야하며 클래스를 변경하는 이유는 단 하나의 이유여야한다.
 
-- OCP 개방 폐쇄 원칙
+- OCP(Open/Closed Principle) 개방 폐쇄 원칙
 
   확장에는 열려 있어야 하고 변경에는 닫혀 있어야 한다.
 
-- LSP 리스코프 치환 원칙
+- LSP(Liskov Substitution Principle) 리스코프 치환 원칙
 
   상위 타입의 객체를 하위 타입의 객체로 치환해도 상위 타입을 사용하는 프로그램을 정상적으로 동작해야한다.
 
-- ISP 인터페이스 분리 원칙
+- ISP(Interface Segregation Principle) 인터페이스 분리 원칙
 
   하나의 일반적인 인터페이스보다는 여러 개의 구체적인 인터페이스가 낫다.
 
-- DIP 의존 역전 원칙
+- DIP(Dependency Inversion Principle) 의존 역전 원칙
 
   의존 관계를 맺을 때, 변화하기 쉬운 것 보단 변화하기 어려운 것에 의존해야 한다.
