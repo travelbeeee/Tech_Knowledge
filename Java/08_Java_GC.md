@@ -4,24 +4,44 @@
 
 <br>
 
-### 1) Garbage Collection 이란
+### 1) Java Garbage Collection 
 
  프로그램을 개발 하다 보면 유효하지 않은 메모리인 가바지(Garbage)가 발생하게 된다. 자바에서는 개발자가 메모리를 직접 해제해주지 않아도 JVM의 가비지 컬렉터가 불필요한 메모리를 알아서 정리해준다. 대신 Java에서 명시적으로 불필요한 데이터를 표현하기 위해 일반적으로 null을 선언해준다.
 
- Java에서는 가비지 컬렉터가 주기적으로 검사하여 사용이 되지 않는 메모리를 청소해준다.
+ Java에서는 가비지 컬렉터가 주기적으로 검사하여 사용이 되지 않는 메모리를 청소하는 `Mark and Sweep` 기법을 사용합니다. `Root Space`부터 순회를 통해 접근이 가능한 객체(`Reachable`)과 접근이 불가능한 객체(`UnReachable`) 를 구분하고 접근이 불가능한 객체를 메모리에서 지우게 됩니다. 메모리 파편화를 막는`Compaction` 의 유무는 GC 종류에 따라 다릅니다.
+
+![다운로드](https://user-images.githubusercontent.com/59816811/138267688-e5352d56-80d7-4500-9f59-866e504a5b07.png)
+
+ Root Space는 JVM의 메모리 영역 중 `Stack Area`, `Method Area(Metaspace)`, `Native Method Stack` 영역을 의미합니다.
+
+![화면 캡처 2021-10-21 202812](https://user-images.githubusercontent.com/59816811/138268273-20183958-183a-442a-b502-66e7aa71123b.png)
+
+ Java의 GC가 일어날 때는 `Stop the world`  와 `Mark and Sweep` 2가지 일이 발생합니다. 
+
+##### Stop The World
+
+ `Stop The World`는 가비지 컬렉션을 실행하기 위해 JVM이 애플리케이션의 실행을 멈추는 작업이다. GC를 진행하는 쓰레드를 제외한 모든 쓰레드들의 작업이 중단되면 애플리케이션이 멈추기 때문에, GC의 성능 개선을 위해 튜닝을 한다고 하면 보통 stop-the-world의 시간을 줄이는 작업을 하는 것이다. 또한 JVM에서도 이러한 문제를 해결하기 위해 다양한 실행 옵션을 제공하고 있흠티아.
+
+<br>
+
+##### **Mark and Sweep**
+
+- Mark: 사용되는 메모리와 사용되지 않는 메모리를 식별하는 작업
+- Sweep: Mark 단계에서 사용되지 않음으로 식별된 메모리를 해제하는 작업
+
+ `Stop The World`를 통해 모든 작업을 중단시키면, GC는 스택의 모든 변수 또는 Reachable 객체를 스캔하면서 각각이 어떤 객체를 참고하고 있는지를 탐색하게 된다. 그리고 사용되고 있는 메모리를 식별하는데, 이러한 과정을 Mark라고 한다. 이후에 Mark가 되지 않은 객체들을 메모리에서 제거하는데, 이러한 과정을 Sweep라고 한다.
 
  모든 자바 애플리케이션은 `JVM` 환경에서 작동하므로 `Garbage Collection` 은 자바 애플리케이션의 응답 시간가 성능에 밀접한 관계를 가지게 됩니다.
-
- 자바의 가비지 컬렉터는 그 동작 방식에 따라 매우 다양한 종류가 있지만 공통적으로 다음 2가지 작업을 수행한다.
-
-- Heap 내의 객체 중에서 Garbage를 찾아낸다.
-- 찾아낸 Garbage를 처리해서 Heap 의 메모리를 회수한다.
 
 > 자바에서도 System.gc() 를 이용해 가비지 컬렉션을 호출할 수 있지만, 시스템의 성능에 매우 안좋은 영향을 끼친다.
 
 <br>
 
-### 2)  `Young(Minor GC)` , `Old(Major GC)` 영역
+
+
+<br>
+
+### 2)  JVM Heap 구조
 
 자바 `Garbage Collection` 은 2가지를 전제로 설계되었습니다.
 
@@ -30,15 +50,15 @@
 
 즉, 객체는 대부분 일회성이며 메모리에 오랫동안 남아있는 경우는 드물다! 를 전제로 만들어졌습니다.
 
-그렇기 때문에, 객체의 생존 기간에 따라 물리적인 `Heap` 영역을 `Young`, `Old` 2가지 영역으로 설계했습니다.
+그렇기 때문에, 객체의 생존 기간에 따라 물리적인 `Heap` 영역을 `Young`, `Old` 2가지 영역으로 설계했습니다. 
 
-> 초기에는 `Perm` 영역도 존재했으나, Java8부터 제거되었습니다.
+( 초기에는 `Perm` 영역도 존재했으나, Java8부터 제거되었습니다.)
 
 ![img](https://user-images.githubusercontent.com/59816811/135704340-48ecc01a-3cbc-4f9e-85da-a0db35f6d98f.png)
 
 - `Young` 영역
   - 새롭게 생성된 객체가 할당되는 영역
-  - 대부분의 객체가 금방 Unreachable 상태가 되기 때문에, 대부분의 객체는 `Young` 영역에 생성되었다가 사라집니다.
+  - 대부분의 객체가 금방 UnReachable 상태가 되기 때문에, 대부분의 객체는 `Young` 영역에 생성되었다가 사라집니다.
   - `Young` 영역에 대한 가비지 컬렉션을 `Minor GC`라고 부릅니다.
 - `Old` 영역
   - `Young`영역에서 Reachable 상태를 유지하여 살아남은 객체가 복사되는 영역
@@ -47,11 +67,11 @@
 
 <br>
 
-그러면, `Old` 영역에서 `Young` 영역의 객체를 참조하면 어떻게 될까?? `Old` 영역에서 참조하고 있는 `Young` 영역 객체가 GC 대상이 되면 안되므로 이를 위해 `Old` 영역에는 512바이트의 덩어리로 되어 있는 `Card Table` 이 존재합니다.
+ 그러면, `Old` 영역에서 `Young` 영역의 객체를 참조하면 어떻게 될까?? `Old` 영역에서 참조하고 있는 `Young` 영역 객체가 GC 대상이 되면 안되므로 이를 위해 `Old` 영역에는 512바이트의 덩어리로 되어 있는 `Card Table` 이 존재합니다.
 
 ![helloworld-1329-2](https://user-images.githubusercontent.com/59816811/135704440-fa1df0a7-178a-4c94-a1d8-70c545f04cec.png)
 
-카드 테이블을 이용해 `Old` 영역에서 참조하고 있는 `Young` 영역 객체를 관리하고 있습니다. 따라서, `Minor GC` 는 카드 테이블만 확인해 `Old` 영역에서 참조하고 있지 않다면 GC가 가능합니다. 즉, `Minor GC`는 `Stop-the-world` 과정 없이 카드 테이블을 이용해 가능합니다.
+ 카드 테이블을 이용해 `Old` 영역에서 참조하고 있는 `Young` 영역 객체를 관리하고 있습니다. 
 
 <br>
 
@@ -62,13 +82,13 @@
 - Eden 영역 
 - Survivor 영역 ( 2개 )
 
-영역의 처리 절차는 다음과 같다.
+영역의 처리 절차는 다음과 같습니다.
 
 - 새로 생선한 대부분의 객체는 `Eden` 영역에 위치한다.
-- `Eden` 영역에서 GC가 한 번 발생한 후 살아남은 객체는 `Survivor` 영역 중 하나로 이동한다.
+- `Eden` 영역이 가득차면 MinorGC가 발생하고, 살아남은 객체는 `Survivor` 영역 중 하나로 이동합니다.
 - `Eden` 영역에서 GC가 발생하면 이미 살아남은 객체가 존재하는 `Survivor` 영역으로 객체가 계속 쌓인다.
 - 하나의 `Survivor` 영역이 가득 차게 되면 그 중에서 살아남은 객체를 다른 `Survivor` 영역으로 이동한다. 그리고 가득 찬 `Survivor` 영역을 비웁니다.
-- 이 과정을 반복하다가 계속해서 살아남아 있는 객체는 `Old` 영역으로 이동하게 된다.
+- 객체마다  `Age-bit` 가 있고, `Minor-GC`에서 살아남으면 1씩 증가합니다. 위의 과정을 반복하다 `Age-bit`이 일정 수준이 넘어가면 `Old` 영역으로 이동하게 됩니다.
 
 ![helloworld-1329-3](https://user-images.githubusercontent.com/59816811/135704781-1d9aa15c-1ebf-43aa-b06b-52a876cc7d68.png)
 
@@ -84,22 +104,7 @@
 
 ### 4)  Old (Major GC)
 
-`Young` 영역에서 오래 살아남은 객체는 `Old` 영역으로 Promotion 된다. 따라서, `Major GC`는 객체들이 계속 Promotion되어 `Old` 영역의 메모리가 부족해지면 발생하게 된다. `Young` 영역은 일반적으로 `Old` 영역보다 크키가 작기 때문에 GC가 보통 0.5초에서 1초 사이에 끝난다. 그렇기 때문에 `Minor GC`는 애플리케이션에 크게 영향을 주지 않는다. 하지만 `Old` 영역은 `Young` 영역보다 크며 `Young` 영역을 참조할 수도 있다. 그렇기 때문에 `Major GC`는 일반적으로 `Minor GC`보다 시간이 오래걸리며, 10배 이상의 시간을 사용한다.
-
-<br>
-
-##### Stop The World
-
- `Stop The World`는 가비지 컬렉션을 실행하기 위해 JVM이 애플리케이션의 실행을 멈추는 작업이다. `Major GC`가 실행될 때는 GC를 실행하는 쓰레드를 제외한 모든 쓰레드들의 작업이 중단되고, GC가 완료되면 작업이 재개된다. 당연히 모든 쓰레드들의 작업이 중단되면 애플리케이션이 멈추기 때문에, GC의 성능 개선을 위해 튜닝을 한다고 하면 보통 stop-the-world의 시간을 줄이는 작업을 하는 것이다. 또한 JVM에서도 이러한 문제를 해결하기 위해 다양한 실행 옵션을 제공하고 있다.
-
-<br>
-
-##### **Mark and Sweep**
-
-- Mark: 사용되는 메모리와 사용되지 않는 메모리를 식별하는 작업
-- Sweep: Mark 단계에서 사용되지 않음으로 식별된 메모리를 해제하는 작업
-
- `Stop The World`를 통해 모든 작업을 중단시키면, GC는 스택의 모든 변수 또는 Reachable 객체를 스캔하면서 각각이 어떤 객체를 참고하고 있는지를 탐색하게 된다. 그리고 사용되고 있는 메모리를 식별하는데, 이러한 과정을 Mark라고 한다. 이후에 Mark가 되지 않은 객체들을 메모리에서 제거하는데, 이러한 과정을 Sweep라고 한다.
+`Young` 영역에서 오래 살아남은 객체는 `Old` 영역으로 이동하게 되고 이를 `Promotion` 이라고 합니다. `Promotion` 이 발생할 때, `Young` 영역에서 살아남은 객체이므로 더 큰 메모리를 할당해줍니다. `Major GC`는 객체들이 계속 `Promotion` 되어 `Old` 영역의 메모리가 부족해지면 발생하게 된다. `Young` 영역은 일반적으로 `Old` 영역보다 크키가 작기 때문에 GC가 보통 0.5초에서 1초 사이에 끝난다. 그렇기 때문에 `Minor GC`는 애플리케이션에 크게 영향을 주지 않는다. 하지만 `Old` 영역은 `Young` 영역보다 크며 `Young` 영역을 참조할 수도 있습니다. 따라서, `Major GC`는 일반적으로 `Minor GC`보다 시간이 오래걸리며, 10배 이상의 시간을 사용합니다.
 
 <br>
 
@@ -107,35 +112,34 @@
 
 ​	A. Heap 영역을 키우더라도 결국 Major GC는 언젠가 발생하게 된다. 이때, Heap 영역의 크기에 비례해서 GC 실행 시간이 정해지므로 오히려 애플리케이션의 실행이 멈추는 시간이 더 길어지는 악효과가 발생한다.
 
-​	--> Major GC 를 어떤 알고리즘을 이용해 어떻게 최소화 할 것인가. 어떻게 피할 것인가를 생각하자.
+ Haep 영역이 너무 크면 GC가 한 번 일어날 때 오래 걸리게 되고, Heap 영역이 너무 작다면 GC가 자주 일어나게 된다. 즉, 어떤 알고리즘을 이용해 어떻게 최소화 할 것인가. 어떻게 피할 것인가를 생각해야된다.
 
 <br>
 
-### 5) Old ( Major GC) 방식
+### 5) Major GC 방식
 
  Old 영역은 기본적으로 데이터가 가득 차면 GC를 실행합니다. GC 방식에 따라서 처리 절차가 달라지고, GC 방식은 JDK 7을 기준으로 5가지 방식이 있습니다.
 
 - Serial GC
 - Parallel GC
-- Parallel Old GC(Parallel Compacting GC)
 - Concurrent Mark & Sweep GC(이하 CMS)
 - G1(Garbage First) GC
 
-> JDK 11에서는 Default 로 G1 GC를 사용하고 있다.JDK 11에서는 Default 로 G1 GC를 사용하고 있다.
+> JDK 11에서는 Default 로 G1 GC를 사용하고 있다.
 
 ##### Serial GC
 
- Serial GC는 데스크톱의 CPU 코어가 하나만 있을 때 사용하기 위해서 만든 방식이라 Serial GC를 사용하면 애플리케이션의 성능이 많이 떨어집니다. Young 영역에서의 GC는 위에서 정리한 내용대로 실행하고, Old 영역의 GC는 mark-sweep-compact이라는 알고리즘을 사용합니다. 
+ Serial GC는 데스크톱의 CPU 코어가 하나만 있을 때 사용하기 위해서 만든 방식으로 하나의 쓰레드로 GC를 실행하는 방식입니다. 애플리케이션의 성능이 많이 떨어지고, `Mark and Sweep + Compact` 알고리즘을 사용합니다.
 
  이 알고리즘의 첫 단계는 Old 영역에 살아 있는 객체를 식별(Mark)하는 것이다. 그 다음에는 힙(heap)의 앞 부분부터 확인하여 살아 있는 것만 남긴다(Sweep). 마지막 단계에서는 각 객체들이 연속되게 쌓이도록 힙의 가장 앞 부분부터 채워서 객체가 존재하는 부분과 객체가 없는 부분으로 나눈다(Compaction).
 
-##### Parallel GC
+ ![화면 캡처 2021-10-21 204447](https://user-images.githubusercontent.com/59816811/138270418-51beee84-2c93-44ed-b8cb-9832a701a418.png)
+
+##### Parallel GC ( Java 8 )
 
  Parallel GC는 Serail GC가 하나의 스레드로 처리하는 것에 비해 멀티 스레드로 GC 작업을 처리합니다.
 
-##### Parallel Old GC
-
- Parallel GC와 비교하여 Old 영역의 GC 알고리즘만 다르다. 이 방식은 Mark-Summary-Compaction 단계를 거친다. Summary 단계는 앞서 GC를 수행한 영역에 대해서 별도로 살아 있는 객체를 식별한다는 점에서 Mark-Sweep-Compaction 알고리즘의 Sweep 단계와 다르며, 약간 더 복잡한 단계를 거친다
+![화면 캡처 2021-10-21 204546](https://user-images.githubusercontent.com/59816811/138270593-c9967278-a659-4819-8358-75ee9b146f3c.png)
 
 #####  CMS GC
 
@@ -150,18 +154,17 @@
 4. Concurrent Sweep
    GC 대상으로 판별된 객체들을 멀티스레드로 메모리에서 제거한다. 이때 Stop-The-World가 발생하지 않는다.
 
-단점으로는 하는 일이 많다보니 CPU 부하가 커진다는 것이고, Compaction이 기본적으로 제공되지 않고 필요할 때만 일어나는데, 이때의 Stop-The-World 시간이 다른 GC보다 더 길게 걸릴 수도 있다.
+ 단점으로는 하는 일이 많다보니 CPU 부하가 커진다는 것이고, Compaction이 기본적으로 제공되지 않고 필요할 때만 일어나는데, 이때의 Stop-The-World 시간이 다른 GC보다 더 길게 걸릴 수도 있다. G1 GC 등장 이후로는 사용되지 않습니다.
 
-##### G1 GC
+##### G1 GC ( Java 9 이후로 Default GC )
 
- 하드웨어가 발전되어 JVM을 가동하는 메모리의 크기도 점점 커져가는데, 이전까지의 GC들은 큰 용량의 메모리에 적합하지 않다(Root set부터 순차적으로 탐색하기에 용량이 클 수록 탐색 시간이 길어짐).
- G1 GC는 이런 점을 개선하여, 큰 Heap 메모리에서 짧은 GC 시간을 보장하는데 그 목적을 둔다. G1 GC는 Eden, Survivor, Old 영역이 존재하지만, 고정된 크기로 고정된 위치에 존재하지 않는다. 전체 Heap 영역을 Region이라는 특정한 크기로 나눠서, 각 Region의 상태에 따라 역할(Eden, Survivor, Old)이 동적으로 부여된다. 2048개의 Region으로 나뉠수 있으며, 옵션을 통해 1MB~32MB 사이로 지정할 수 있다. Region은 기본적으로 ( 전체 Heap 메모리 ) / 2048 로 default 값이 지정되어 있습니다.
+ 하드웨어가 발전되어 JVM을 가동하는 메모리의 크기도 점점 커져가는데, 이전까지의 GC들은 Root Space부터 순차적으로 탐색하기 때문에 큰 용량의 메모리에 적합하지 않습니다. G1 GC는 이런 점을 개선하여, Eden, Survivor, Old 영역이 존재하지만, 고정된 크기로 고정된 위치에 존재하지 않습니다. 전체 Heap 영역을 Region이라는 특정한 크기로 나눠서, 각 Region의 상태에 따라 역할(Eden, Survivor, Old)이 동적으로 부여됩니다. 2048개의 Region으로 나뉠수 있으며, 옵션을 통해 1MB~32MB 사이로 지정할 수 있다. Region은 기본적으로 ( 전체 Heap 메모리 ) / 2048 로 default 값이 지정되어 있습니다.
 
 ![다운로드 (2)](https://user-images.githubusercontent.com/59816811/135750099-e391d405-f3a2-495e-84fd-d2977b27b528.png)
 
-앞에서 봤던 Eden, Survivor, Old 외에 Humonogous와 Available/Unused Region이 추가로 보인다. Humongous는 설정된 Region 크기의 50%를 초과하는 큰 객체를 저장하기 위한 공간으로, 이 Region에서는 GC 동작이 최적으로 동작하지 않는다. Available/Unused 는 이름에서 짐작할 수 있듯, 아직 사용되지 않은 공간이다.
+앞에서 봤던 Eden, Survivor, Old 외에 Humonogous와 Available/Unused Region 영역이 추가되었고, Humongous는 설정된 Region 크기의 50%를 초과하는 큰 객체를 저장하기 위한 공간으로 해당 Region 에서는 GC 동작이 최적으로 동작하지 않는다. Available/Unused 는 이름에서 짐작할 수 있듯, 아직 사용되지 않은 공간을 의미합니다.
 
-`G1GC` 에서도 마찬가지로 **Minor GC** 가 존재하며, 요 과정에는 살아남은 객체들을 Survivor Region으로 옮기고, Eden에 대한 영역을 사용가능한(Availabe)Region으로 돌리는 형태로 과정이 일어나게 됩니다. `G1GC` 에는 은 `IHOP(InitiatingHeapOccupancyPercent)` 에서 정한 수치를 초과하면 **Full GC** 와 유사한 **Concurrent Cycle** 이라는 과정이 총 6개의 단계를 거쳐 이루어지게 된다.
+`G1GC` 에서도 마찬가지로 **Minor GC** 가 존재하며, 요 과정에는 살아남은 객체들을 Survivor Region으로 옮기고, Eden에 대한 영역을 사용가능한(Availabe)Region으로 돌리는 형태로 과정이 일어나게 됩니다. `G1GC` 에는 은 `IHOP(InitiatingHeapOccupancyPercent)` 에서 정한 수치를 초과하면 **Full GC** 와 유사한 **Concurrent Cycle** 이라는 과정이 총 6개의 단계를 거쳐 이루어지게 됩니다.
 
 1. **Initial Mark** : Old Region에 존재하는 객체들이 참조하는 Survivor Region을 찾는다(STW)
 2. **Root Region Scan** : 위에서 찾은 Survivor 객체들에 대한 스캔 작업을 실시한다
@@ -180,3 +183,6 @@ https://velog.io/@hygoogi/%EC%9E%90%EB%B0%94-GC%EC%97%90-%EB%8C%80%ED%95%B4%EC%8
 
 https://huisam.tistory.com/entry/jvmgc
 
+https://joel-dev.site/95?category=1049830
+
+​	
