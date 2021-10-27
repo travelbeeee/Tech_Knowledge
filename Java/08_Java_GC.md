@@ -164,7 +164,7 @@
 
 앞에서 봤던 Eden, Survivor, Old 외에 Humonogous와 Available/Unused Region 영역이 추가되었고, Humongous는 설정된 Region 크기의 50%를 초과하는 큰 객체를 저장하기 위한 공간으로 해당 Region 에서는 GC 동작이 최적으로 동작하지 않는다. Available/Unused 는 이름에서 짐작할 수 있듯, 아직 사용되지 않은 공간을 의미합니다.
 
-`G1GC` 에서도 마찬가지로 **Minor GC** 가 존재하며, 요 과정에는 살아남은 객체들을 Survivor Region으로 옮기고, Eden에 대한 영역을 사용가능한(Availabe)Region으로 돌리는 형태로 과정이 일어나게 됩니다. `G1GC` 에는 은 `IHOP(InitiatingHeapOccupancyPercent)` 에서 정한 수치를 초과하면 **Full GC** 와 유사한 **Concurrent Cycle** 이라는 과정이 총 6개의 단계를 거쳐 이루어지게 됩니다.
+`G1GC` 에서도 마찬가지로 **Minor GC** 가 존재하며, 요 과정에는 살아남은 객체들을 Survivor Region으로 옮기고, Eden에 대한 영역을 사용가능한(Availabe)Region으로 돌리는 형태로 과정이 일어나게 됩니다. `G1GC` 에는 은 `IHOP(InitiatingHeapOccupancyPercent)` 에서 정한 수치를 초과하면 **Full GC** 와 유사한 **Concurrent Cycle** 이라는 과정이 총 6개의 단계를 거쳐 이루어지게 됩니다.![G1FullGC](https://user-images.githubusercontent.com/59816811/139046201-99d633da-7d1b-46d6-a818-dc74b975e68b.png)
 
 1. **Initial Mark** : Old Region에 존재하는 객체들이 참조하는 Survivor Region을 찾는다(STW)
 2. **Root Region Scan** : 위에서 찾은 Survivor 객체들에 대한 스캔 작업을 실시한다
