@@ -64,18 +64,19 @@ OS 위에 존재하는 JVM 위에서 실행되기 때문에 운영체제에 독�
 
 <br>
 
-### 4) 자바 PermGen / MethodArea
+### 4) 자바 PermGen / Metaspace
 
  자바에서는 `Permanent Generation Space`인 `PermGen` 영역이 있습니다. 특별한 `Heap` 공간으로 클래스 메타정보, 메소드 메타정보, `Static Object` 정보, `String Object` 정보 등 `MethodArea`의 정보들이 `PermGen` 영역에 할당되었습니다. 따라서, JVM의 메모리 영역은 크게 `Heap Space` 와 `PermGen Space`로 나뉘게 됩니다.
 
  프로젝트가 커지다보면 `PermGen` 영역에서 `OutOfMemory` 문제가 발생하게 됩니다. 특히, 개발자의 실수로 `Static Object`를 많이 생성하게 되는 경우 객체의 모든 부분이 `Perm Gen`에 저장되므로 문제가 발생하는 상황이 많았습니다.
 
- 이런 문제를 해결하기 위해 자바8부터는 `PermGen`영역을 완전히 제거하고 `MethodArea` 라는 이름의 영역을 새롭게 만들었습니다.
+ 이런 문제를 해결하기 위해 자바8부터는 `PermGen`영역을 완전히 제거하고 `Metaspace` 라는 이름의 영역을 새롭게 만들었습니다.
 
- `MethodArea`영역은 `PermGen`영역과 다르게 `Normal JVM Heap` 영역 바깥에 있는 `Native Heap`에 할당되고, OS가 관리하므로 따로 `MaxSize`를 설정해주지 않아도 됩니다. JVM에 의해 관리되는 `Heap` 영역에서 클래스, 메소드 메타 정보들을 빼고 `Native` 영역으로 옮겼고, 개발자는 영역 확보의 상한을 크게 의식할 필요가 없습니다. 즉, 각종 메타 정보를 OS가 관리하는 영역으로 옮겨 Perm 영역의 사이즈 제한을 없앤 것이라 할 수 있다.
+ `Metaspace`영역은 `PermGen`영역과 다르게 `Normal JVM Heap` 영역 바깥에 있는 `Native Heap`에 할당되고, OS가 관리하므로 따로 `MaxSize`를 설정해주지 않아도 됩니다. JVM에 의해 관리되는 `Heap` 영역에서 클래스, 메소드 메타 정보들을 빼고 `Native` 영역으로 옮겼고, 개발자는 영역 확보의 상한을 크게 의식할 필요가 없습니다. 즉, 각종 메타 정보를 OS가 관리하는 영역으로 옮겨 Perm 영역의 사이즈 제한을 없앤 것이라 할 수 있다.
 
  또, `Static Object` 정보는 `MetaSpace` 영역이 아니라 `Heap`영역으로 옮겨 GC가 될 수 있도록 했습니다.
 
 1) **Heap memory**: memory within the JVM process that is used to hold Java Objects and is maintained by the JVMs Garbage Collector.
 
 2) **Native memory/Off-heap**: is memory allocated within the processes address space that is not within the heap and thus is not freed up by the Java Garbage Collector.
+
