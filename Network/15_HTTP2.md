@@ -79,7 +79,7 @@ The focus of the protocol is on performance; specifically, end-user perceived la
 
 ### 6) HTTP/2 Header Data Compression
 
- HTTP/2 에서는 Header 를 Plain Text가 아니라 `Huffman Encoding`을 사용하는 `HPACK`을 이용해 압축을 하고, 중복되는 필드는 재전송하지 않습니다. 
+ HTTP/2 에서는 Header 를 Plain Text가 아니라 `Huffman Encoding`을 사용하는 `HPACK`을 이용해 압축을 하고, 중복되는 필드는 재전송하지 않습니다. 이를 위해 `Static Table`과 `Dynamic Table`을 내부적으로 이용합니다. `Static Table`은 HTTP/2 Spec에 정의된 Table로 HTTP/2 Header로 자주 사용되는 Key-value 값 쌍을 저장하고 있는 Table이다. `Dynamic Table`은 한번 전송/수신한 Header의 Key-value 값을 임의로 저장하는 Buffer 역할을 수행하는 Table이다.
 
 ![image](https://user-images.githubusercontent.com/59816811/137594485-55075a5e-116e-4f8e-a670-1e07fbd39226.png)
 
@@ -87,7 +87,7 @@ The focus of the protocol is on performance; specifically, end-user perceived la
 
 ### 7) Spring에서 HTTP2 이용하기
 
- 톰캣 8.5버전 이상부터 HTTP/2 를 지원하고 있습니다. 또, HTTP/2를 사용하기 위해서는 HTTPS 설정도 되어 있어야 합니다. 스프링 부트에서는 `server.http2.enabled` 설정만 true로 바꿔주면 됩니다. 빈을 직접 등록해주는 방법도 있습니다.
+ 톰캣 8.5버전 이상부터 HTTP/2 를 지원하고 있습니다. 스프링 부트에서는 `server.http2.enabled` 설정만 true로 바꿔주면 됩니다. 빈을 직접 등록해주는 방법도 있습니다.
 
 ```properties
 server.http2.enabled = true
